@@ -8,24 +8,41 @@ import todoRoutes from "./routes/todoRoutes.js";
 
 dotenv.config();
 
-// init express
 const app = express();
 
-// middleware
+// Allowed origins for CORS
+const allowedOrigins = [
+  "http://localhost:5173", // local dev
+  "https://mern-todo-923.vercel.app", // production frontend
+];
+
+// Middleware
 app.use(
   cors({
-    origin: "https://mern-todo-923.vercel.app",
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   })
 );
+
 app.use(express.json());
 app.use(cookieParser());
 
-// connect database
+// Connect database
 connectDB();
 
-// routes
+// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/todos", todoRoutes);
+
+// Root route for health check
+app.get("/", (req, res) => {
+  res.json({ status: "Backend is running 🚀" });
+});
 
 export default app;
