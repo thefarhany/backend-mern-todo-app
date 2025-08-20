@@ -10,21 +10,20 @@ dotenv.config();
 
 const app = express();
 
-// Allowed origins for CORS
 const allowedOrigins = [
-  "http://localhost:5173", // local dev
-  "https://mern-todo-923.vercel.app", // production frontend
+  "http://localhost:5173",
+  "https://mern-todo-923.vercel.app",
 ];
 
-// Middleware
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        // Jangan crash, tapi tolak request
+        callback(null, false);
       }
-      return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
   })
@@ -33,16 +32,19 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-// Connect database
 connectDB();
 
-// Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/todos", todoRoutes);
 
-// Root route for health check
 app.get("/", (req, res) => {
   res.json({ status: "Backend is running 🚀" });
+});
+
+// Pakai port dari Railway
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
 export default app;
