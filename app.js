@@ -17,14 +17,7 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        // Jangan crash, tapi tolak request
-        callback(null, false);
-      }
-    },
+    origin: allowedOrigins,
     credentials: true,
   })
 );
